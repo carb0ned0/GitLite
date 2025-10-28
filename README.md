@@ -33,8 +33,8 @@ We use CMake, so it's pretty straightforward:
 1. Grab the code:
 
     ```bash
-    git clone <your-repository-url>
-    cd <repository-directory>
+    git clone https://github.com/carb0ned0/GitLite
+    cd GitLite
     ```
 
 2. Make a build folder (it keeps things tidy!):
