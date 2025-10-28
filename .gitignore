@@ -1,0 +1,40 @@
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Compilation output
+*.o
+*.d
+gitlite
+
+# Test output/files (if any generated during tests)
+# *.testout
+
+# Build directory (if you use a separate one like 'build/')
+build/
+Build/
+build-*/
+Build-*/
+
+# compile_commands.json (often useful locally, but usually not committed)
+compile_commands.json
+
+# Operating System generated files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files and folders
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Other common temporary files
+*~
+*.swp
+*.bak
