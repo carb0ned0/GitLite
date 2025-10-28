@@ -156,7 +156,7 @@ It'll run a bunch of commands and print "OK" if things look good, or an error if
 
 Here's a list of planned improvements and fixes to make GitLite more robust and closer to Git's actual functionality.
 
-### 1. Critical Issues & Design Fixes
+### 1. Design Fixes
 
 * [ ] **Fix `const_cast` in `write_tree`:** Change the signature in `repo.h` and `repo.cpp` to take `GitRepository& repo` (non-const) to honestly reflect that it modifies the repository.
 * [ ] **Fix `write_tree` ignore logic:**
@@ -180,7 +180,7 @@ Here's a list of planned improvements and fixes to make GitLite more robust and 
   * [ ] It should call `commit-tree` with the new tree SHA and parent SHA.
   * [ ] It must update the current branch ref (e.g., `.git/refs/heads/master`) to point to the new commit's SHA.
 
-### 3. Minor Improvements & Polish
+### 3. Minor Improvements & Polishing
 
 * [ ] **Clean includes:** Remove `openssl/sha.h` and `zlib.h` from `main.cpp`. They only belong in `repo.cpp`.
 * [ ] **Support executable file modes:** Update `write_tree` to check file permissions and use `0100755` for executable files, not just `0100644`.
