@@ -151,3 +151,38 @@ There's a handy script `test.sh` that runs through the basic commands to make su
 ```
 
 It'll run a bunch of commands and print "OK" if things look good, or an error if something seems broken. Fingers crossed!
+
+## Future Improvements (TODO)
+
+Here's a list of planned improvements and fixes to make GitLite more robust and closer to Git's actual functionality.
+
+### 1. Critical Issues & Design Fixes
+
+* [ ] **Fix `const_cast` in `write_tree`:** Change the signature in `repo.h` and `repo.cpp` to take `GitRepository& repo` (non-const) to honestly reflect that it modifies the repository.
+* [ ] **Fix `write_tree` ignore logic:**
+  * [ ] Change the dotfile check from `filename[0] == '.'` to `filename == ".git"` to avoid ignoring important files like `.gitignore`.
+  * [ ] Implement basic `.gitignore` parsing instead of using a hardcoded `std::set` of ignored files.
+* [ ] **Refactor `object_hash`:**
+  * [ ] Rename `object_hash` to something like `object_write_from_stream` as it currently hashes *and* writes.
+  * [ ] Create a separate, true `object_hash` function that only calculates and returns the hash without writing to the repo.
+* [ ] **Handle large files:** Modify `object_hash` / `object_write_from_stream` to read files in chunks (streaming) instead of loading the entire file into memory. This is critical for scalability.
+
+### 2. Core Git Functionality
+
+* [ ] **Implement the Staging Area (Index):**
+  * [ ] Create the `.git/index` file structure.
+  * [ ] Change `cmd_hash_object` into a proper `cmd_add` that adds/updates file entries in the index.
+  * [ ] Modify `cmd_write_tree` to build the tree object by reading from the `.git/index` file, not by scanning the working directory.
+* [ ] **Create high-level `cmd_commit`:**
+  * [ ] Create a new `cmd_commit` command (different from `commit-tree`).
+  * [ ] This command should automatically call `write_tree` (using the index).
+  * [ ] It should read the current `HEAD` ref to find the parent commit SHA.
+  * [ ] It should call `commit-tree` with the new tree SHA and parent SHA.
+  * [ ] It must update the current branch ref (e.g., `.git/refs/heads/master`) to point to the new commit's SHA.
+
+### 3. Minor Improvements & Polish
+
+* [ ] **Clean includes:** Remove `openssl/sha.h` and `zlib.h` from `main.cpp`. They only belong in `repo.cpp`.
+* [ ] **Support executable file modes:** Update `write_tree` to check file permissions and use `0100755` for executable files, not just `0100644`.
+* [ ] **Robust argument parsing:** Improve the argument parsing in `cmd_commit_tree` to handle out-of-order arguments or multi-word messages.
+* [ ] **Improve `GitCommit::parse`:** Make the commit parser more robust against unknown or multi-line headers.
