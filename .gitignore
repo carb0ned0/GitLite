@@ -11,6 +11,8 @@ Makefile
 gitlite
 
 # Test output/files (if any generated during tests)
+hello.txt
+test.txt
 # *.testout
 
 # Build directory (if you use a separate one like 'build/')

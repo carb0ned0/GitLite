@@ -11,7 +11,7 @@ Right now, GitLite knows these commands:
 * `gitlite init [<path>]`: Kicks things off! It sets up a new GitLite spot (repository) in a folder. If you don't tell it where, it'll just use the folder you're in. Makes a `.git` folder just like the real Git.
 * `gitlite hash-object <file>`: Takes a file, figures out its unique SHA-1 ID (hash), and saves it in the `.git/objects` folder. Then it tells you the hash it came up with.
 * `gitlite cat-file <type> <object>`: Shows you what's inside a Git object (like a file's content (blob), a directory listing (tree), or commit info) if you give it the SHA-1 hash.
-* `gitlite write-tree`: Looks at all the files you have right now (except for `.git` stuff and build junk) and makes a 'tree' object out of them. It spits out the SHA-1 hash for that tree.
+* `gitlite write-tree`: Looks at all the files you have right now (except for `.git` stuff, dotfiles starting with '.', and a hardcoded list of build-related files/dirs like 'gitlite', 'test.sh', 'CMakeLists.txt', 'include', 'src', etc.) and makes a 'tree' object out of them. It spits out the SHA-1 hash for that tree. Note: This uses hardcoded ignores for now; see TODOs for improvements.
 * `gitlite ls-tree <tree_sha>`: Shows you what's inside a tree object – basically, a list of files and folders, their permissions, their hashes, and their names.
 * `gitlite commit-tree <tree_sha> [-p <parent_commit_sha>] -m <message>`: Makes a new commit! You give it the tree hash you just made, tell it which commit came before this one (using `-p`), and write a message (using `-m`). It then gives you the SHA-1 hash for your brand-new commit.
 * `gitlite log [<commit_sha>]`: Shows you the history! Starting from a specific commit (or just HEAD if you don't specify), it walks back through the parent commits and tells you about each one.
@@ -64,7 +64,7 @@ We use CMake, so it's pretty straightforward:
 
 ## Usage
 
-After building, you run the `gitlite` program right from the `build` folder.
+After building, you run the `gitlite` program from the project root using `./build/gitlite <command>` (or from inside `build/` as `./gitlite <command>`).
 
 ### Here's a quick example
 
@@ -141,48 +141,15 @@ After building, you run the `gitlite` program right from the `build` folder.
 
 ## Testing it Out
 
-There's a handy script `test.sh` that runs through the basic commands to make sure they're working okay.
+There's a handy script `test.sh` that runs through the basic commands to make sure they're working okay. It now creates a temporary directory (`temp_test_dir`) to isolate the tests (avoiding interference from project files), runs the tests there, and cleans it up afterward.
 
-1. Make sure you've built the project first! (You need `build/gitlite`).
+1. Make sure you've built the project first! (You need `./build/gitlite`).
 2. From the main project folder (where `test.sh` is), run:
 
 ```bash
 ./test.sh
 ```
 
+![Test.sh run example](/test.png)
+
 It'll run a bunch of commands and print "OK" if things look good, or an error if something seems broken. Fingers crossed!
-
-## Future Improvements (TODO)
-
-Here's a list of planned improvements and fixes to make GitLite more robust and closer to Git's actual functionality.
-
-### 1. Design Fixes
-
-* [ ] **Fix `const_cast` in `write_tree`:** Change the signature in `repo.h` and `repo.cpp` to take `GitRepository& repo` (non-const) to honestly reflect that it modifies the repository.
-* [ ] **Fix `write_tree` ignore logic:**
-  * [ ] Change the dotfile check from `filename[0] == '.'` to `filename == ".git"` to avoid ignoring important files like `.gitignore`.
-  * [ ] Implement basic `.gitignore` parsing instead of using a hardcoded `std::set` of ignored files.
-* [ ] **Refactor `object_hash`:**
-  * [ ] Rename `object_hash` to something like `object_write_from_stream` as it currently hashes *and* writes.
-  * [ ] Create a separate, true `object_hash` function that only calculates and returns the hash without writing to the repo.
-* [ ] **Handle large files:** Modify `object_hash` / `object_write_from_stream` to read files in chunks (streaming) instead of loading the entire file into memory. This is critical for scalability.
-
-### 2. Core Git Functionality
-
-* [ ] **Implement the Staging Area (Index):**
-  * [ ] Create the `.git/index` file structure.
-  * [ ] Change `cmd_hash_object` into a proper `cmd_add` that adds/updates file entries in the index.
-  * [ ] Modify `cmd_write_tree` to build the tree object by reading from the `.git/index` file, not by scanning the working directory.
-* [ ] **Create high-level `cmd_commit`:**
-  * [ ] Create a new `cmd_commit` command (different from `commit-tree`).
-  * [ ] This command should automatically call `write_tree` (using the index).
-  * [ ] It should read the current `HEAD` ref to find the parent commit SHA.
-  * [ ] It should call `commit-tree` with the new tree SHA and parent SHA.
-  * [ ] It must update the current branch ref (e.g., `.git/refs/heads/master`) to point to the new commit's SHA.
-
-### 3. Minor Improvements & Polishing
-
-* [ ] **Clean includes:** Remove `openssl/sha.h` and `zlib.h` from `main.cpp`. They only belong in `repo.cpp`.
-* [ ] **Support executable file modes:** Update `write_tree` to check file permissions and use `0100755` for executable files, not just `0100644`.
-* [ ] **Robust argument parsing:** Improve the argument parsing in `cmd_commit_tree` to handle out-of-order arguments or multi-word messages.
-* [ ] **Improve `GitCommit::parse`:** Make the commit parser more robust against unknown or multi-line headers.
