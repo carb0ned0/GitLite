@@ -150,6 +150,6 @@ There's a handy script `test.sh` that runs through the basic commands to make su
 ./test.sh
 ```
 
-![Test.sh run example](/test output.png)
+![Test.sh run example](/test%20output.png)
 
 It'll run a bunch of commands and print "OK" if things look good, or an error if something seems broken. Fingers crossed!
